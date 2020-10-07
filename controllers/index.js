@@ -81,7 +81,7 @@ module.exports = {
         },
       ],
       back_urls: {
-        success: `${Baseurl}/sucess`, //"https://www.tu-sitio/success",
+        success: `${Baseurl}/success`, //"https://www.tu-sitio/success",
         failure: `${Baseurl}/failure`, //"http://www.tu-sitio/failure",
         pending: `${Baseurl}/pending`, //"http://www.tu-sitio/pending",
       },
