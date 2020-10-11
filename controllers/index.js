@@ -31,11 +31,11 @@ module.exports = {
     data = req.body;
     console.log("getNotification" + { parmetros: parms });
     console.log("getNotification" + { body: data });
-    let IPN = new NotificationIPN();
-    IPN.topic = parms.topic;
-    IPN.id = parms.id;
-    IPN.body = data;
-    IPN.parms = parms;
+    let notification = new IPN();
+    notification.topic = parms.topic;
+    notification.id = parms.id;
+    notification.body = data;
+    notification.parms = parms;
     await IPN.save();
     res.render("home");
   },
