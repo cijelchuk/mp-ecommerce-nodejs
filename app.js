@@ -12,9 +12,12 @@ const PORT = process.env.PORT || 5000;
 const indexRouter = require("./routes/index");
 
 var app = express();
-
+//o88AuNrOhStCLOT3
 //DB Connection
-const MongoDBURL = process.env.MONGODB_URI || "mongodb://localhost:27017/mp-ecommerce-nodejs";
+const MongoDBURL =
+  "mongodb+srv://dbuser:o88AuNrOhStCLOT3@cluster0.ovfvu.mongodb.net/mp_test?ssl=true&authSource=admin&w=majority";
+
+//process.env.MONGODB_URI || "mongodb://localhost:27017/mp-ecommerce-nodejs";
 mongoose.connect(MongoDBURL, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
