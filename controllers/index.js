@@ -1,3 +1,5 @@
+const IPN = require("../models/notification");
+
 module.exports = {
   homeController(req, res, next) {
     res.render("home");
@@ -13,39 +15,46 @@ module.exports = {
     res.render("detail", data);
   },
   async failureController(req, res, next) {
-    parms = JSON.stringify(req.query);
-    data = JSON.stringify(req.body);
-    res.render("failure", { parms, data });
+    parms = req.query;
+    res.render("failure", { parms });
   },
   async successController(req, res, next) {
-    parms = JSON.stringify(req.query);
-    data = JSON.stringify(req.body);
-    res.render("success", { parms, data });
+    parms = req.query;
+    res.render("success", { parms });
   },
   async pendingController(req, res, next) {
-    parms = JSON.stringify(req.query);
-    data = JSON.stringify(req.body);
-    res.render("pending", { parms, data });
+    parms = req.query;
+    res.render("pending", { parms });
   },
   async getNotificationController(req, res, next) {
-    parms = JSON.stringify(req.query);
-    data = JSON.stringify(req.body);
-    console.log(parms);
-    console.log(data);
+    parms = req.query;
+    data = req.body;
+    console.log("getNotification" + { parmetros: parms });
+    console.log("getNotification" + { body: data });
+    let IPN = new NotificationIPN();
+    IPN.topic = parms.topic;
+    IPN.id = parms.id;
+    IPN.body = data;
+    IPN.parms = parms;
+    await IPN.save();
     res.render("home");
   },
   async postNotificationController(req, res, next) {
-    parms = JSON.stringify(req.query);
-    data = JSON.stringify(req.body);
-    console.log(parms);
-    console.log(data);
+    parms = req.query;
+    data = req.body;
+    console.log("postNotification" + { parametros: parms });
+    console.log("postNotification" + { body: data });
+    let IPN = new NotificationIPN();
+    IPN.topic = parms.topic;
+    IPN.id = parms.id;
+    IPN.body = data;
+    IPN.parms = parms;
+    await IPN.save();
     res.render("home");
   },
   async payController(req, res, next) {
     const Baseurl = req.protocol + "://" + req.get("host");
     data = req.body;
-    //console.log(req.query);
-    //console.log(data);
     var mercadopago = require("mercadopago");
     mercadopago.configure({
       access_token: "APP_USR-6317427424180639-042414-47e969706991d3a442922b0702a0da44-469485398",
@@ -114,6 +123,5 @@ module.exports = {
       .catch(function (error) {
         console.log(error);
       });
-    //console.log(preference);
   },
 };

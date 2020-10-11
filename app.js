@@ -2,11 +2,10 @@ const express = require("express");
 const engine = require("ejs-mate");
 const bodyParser = require("body-parser");
 const path = require("path");
-
 const createError = require("http-errors");
-const exphbs = require("express-handlebars");
 const session = require("express-session");
 const methodOverride = require("method-override");
+const mongoose = require("mongoose");
 const PORT = process.env.PORT || 5000;
 
 //require routes
@@ -14,8 +13,19 @@ const indexRouter = require("./routes/index");
 
 var app = express();
 
-// app.engine("handlebars", exphbs());
-// app.set("view engine", "handlebars");
+//DB Connection
+const MongoDBURL = process.env.MONGODB_URI || "mongodb://localhost:27017/mp-ecommerce-nodejs";
+mongoose.connect(MongoDBURL, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  useCreateIndex: true,
+});
+
+const db = mongoose.connection;
+db.on("error", console.error.bind(console, "connection error:"));
+db.once("open", () => {
+  console.log("we're connected to database!");
+});
 
 // use ejs-locals for all ejs templates:
 app.engine("ejs", engine);
@@ -58,9 +68,9 @@ app.use(express.static("assets"));
 app.use("/assets", express.static(__dirname + "/assets"));
 
 // // catch 404 and forward to error handler
-// app.use(function (req, res, next) {
-//   next(createError(404));
-// });
+app.use(function (req, res, next) {
+  next(createError(404));
+});
 
 // error handler
 app.use(function (err, req, res, next) {
