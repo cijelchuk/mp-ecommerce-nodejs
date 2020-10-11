@@ -29,28 +29,28 @@ module.exports = {
   async getNotificationController(req, res, next) {
     parms = req.query;
     data = req.body;
-    console.log("getNotification" + { parmetros: parms });
-    console.log("getNotification" + { body: data });
+    // console.log("getNotification" + { parmetros: parms });
+    // console.log("getNotification" + { body: data });
     let notification = new IPN();
     notification.topic = parms.topic;
     notification.id = parms.id;
-    notification.body = data;
-    notification.parms = parms;
+    notification.body = JSON.stringify(data);
+    notification.parms = JSON.stringify(parms);
     await notification.save();
-    res.render("home");
+    res.status(201).send("OK"); //creted
   },
   async postNotificationController(req, res, next) {
     parms = req.query;
     data = req.body;
-    console.log("postNotification" + { parametros: parms });
-    console.log("postNotification" + { body: data });
-    let IPN = new NotificationIPN();
-    IPN.topic = parms.topic;
-    IPN.id = parms.id;
-    IPN.body = data;
-    IPN.parms = parms;
-    await IPN.save();
-    res.render("home");
+    // console.log("getNotification" + { parmetros: parms });
+    // console.log("getNotification" + { body: data });
+    let notification = new IPN();
+    notification.topic = parms.topic;
+    notification.id = parms.id;
+    notification.body = JSON.stringify(data);
+    notification.parms = JSON.stringify(parms);
+    await notification.save();
+    res.status(201).send("OK"); //created
   },
   async payController(req, res, next) {
     const Baseurl = req.protocol + "://" + req.get("host");
