@@ -36,7 +36,7 @@ module.exports = {
     notification.id = parms.id;
     notification.body = data;
     notification.parms = parms;
-    await IPN.save();
+    await notification.save();
     res.render("home");
   },
   async postNotificationController(req, res, next) {
