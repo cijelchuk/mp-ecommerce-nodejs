@@ -71,7 +71,7 @@ module.exports = {
     }
     let notificationURL = `https://api.mercadopago.com/${path}/${notification.id}`;
     console.log(notificationURL);
-    const paymentResponse = null;
+    var paymentResponse = null;
     try {
       const response = await axios.get(notificationURL, {
         headers: {
