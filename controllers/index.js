@@ -1,5 +1,8 @@
 const IPN = require("../models/notification");
+const paymentDetail = require("../models/paymentDetail");
 const axios = require("axios");
+const access_token = "APP_USR-6317427424180639-042414-47e969706991d3a442922b0702a0da44-469485398";
+const integrator_id = "dev_24c65fb163bf11ea96500242ac130004";
 
 module.exports = {
   homeController(req, res, next) {
@@ -57,21 +60,38 @@ module.exports = {
     id = notification.id;
     switch (topic) {
       case "payment":
-        path = "/v1/payments/";
+        path = "v1/payments";
         break;
       case "chargebacks":
-        path = "/v1/chargebacks/";
+        path = "v1/chargebacks";
         break;
       case "merchant_orders":
-        path = "/merchant_orders/";
+        path = "merchant_orders";
         break;
     }
     let notificationURL = `https://api.mercadopago.com/${path}/${notification.id}`;
     try {
-      const response = await axios.get(notificationURL);
+      const response = await axios.get(notificationURL, {
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+        },
+      });
       console.log("procnotok:" + response);
+      paymentResponse = response;
     } catch (error) {
       console.error("procnoterr:" + error);
+    }
+    switch (topic) {
+      case "payment":
+        payment = new paymentDetail(paymentResponse);
+        await payment.save();
+        break;
+      case "chargebacks":
+        path = "v1/chargebacks";
+        break;
+      case "merchant_orders":
+        path = "merchant_orders";
+        break;
     }
   },
   async payController(req, res, next) {
@@ -79,8 +99,8 @@ module.exports = {
     data = req.body;
     var mercadopago = require("mercadopago");
     mercadopago.configure({
-      access_token: "APP_USR-6317427424180639-042414-47e969706991d3a442922b0702a0da44-469485398",
-      integrator_id: "dev_24c65fb163bf11ea96500242ac130004",
+      access_token,
+      integrator_id,
     });
 
     let preference = {
