@@ -1,4 +1,5 @@
 const IPN = require("../models/notification");
+const axios = require("axios");
 
 module.exports = {
   homeController(req, res, next) {
@@ -51,6 +52,28 @@ module.exports = {
     notification.parms = JSON.stringify(parms);
     await notification.save();
     res.status(201).send("OK"); //created
+    //proceso la notificacion
+    processNotification(notification.topic, notification.id);
+  },
+  async processNotification(topic, id) {
+    switch (topic) {
+      case "payment":
+        path = "/v1/payments/";
+        break;
+      case "chargebacks":
+        path = "/v1/chargebacks/";
+        break;
+      case "merchant_orders":
+        path = "/merchant_orders/";
+        break;
+    }
+    let notificationURL = `https://api.mercadopago.com/${path}/${notification.id}`;
+    try {
+      const response = await axios.get(notificationURL);
+      console.log(response);
+    } catch (error) {
+      console.error(error);
+    }
   },
   async payController(req, res, next) {
     const Baseurl = req.protocol + "://" + req.get("host");
