@@ -70,28 +70,33 @@ module.exports = {
         break;
     }
     let notificationURL = `https://api.mercadopago.com/${path}/${notification.id}`;
+    console.log(notificationURL);
+    const paymentResponse = null;
     try {
       const response = await axios.get(notificationURL, {
         headers: {
           Authorization: `Bearer ${access_token}`,
         },
       });
-      console.log("procnotok:" + response);
-      paymentResponse = response;
+
+      paymentResponse = JSON.stringify(response.data);
+      console.log(paymentResponse);
     } catch (error) {
       console.error("procnoterr:" + error);
     }
-    switch (topic) {
-      case "payment":
-        payment = new paymentDetail(paymentResponse);
-        await payment.save();
-        break;
-      case "chargebacks":
-        path = "v1/chargebacks";
-        break;
-      case "merchant_orders":
-        path = "merchant_orders";
-        break;
+    if (paymentResponse) {
+      switch (topic) {
+        case "payment":
+          payment = new paymentDetail(paymentResponse);
+          await payment.save();
+          break;
+        case "chargebacks":
+          path = "v1/chargebacks";
+          break;
+        case "merchant_orders":
+          path = "merchant_orders";
+          break;
+      }
     }
   },
   async payController(req, res, next) {
