@@ -53,7 +53,7 @@ module.exports = {
     await notification.save();
     res.status(201).send("OK"); //created
     //proceso la notificacion
-    processNotification(notification.topic, notification.id);
+    await this.processNotification(notification.topic, notification.id);
   },
   async processNotification(topic, id) {
     switch (topic) {
@@ -70,9 +70,9 @@ module.exports = {
     let notificationURL = `https://api.mercadopago.com/${path}/${notification.id}`;
     try {
       const response = await axios.get(notificationURL);
-      console.log(response);
+      console.log("procnotok:" + response);
     } catch (error) {
-      console.error(error);
+      console.error("procnoterr:" + error);
     }
   },
   async payController(req, res, next) {
