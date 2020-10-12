@@ -53,9 +53,8 @@ module.exports = {
     await notification.save();
     res.status(201).send("OK"); //created
     //proceso la notificacion
-    await this.processNotification(notification.topic, notification.id);
-  },
-  async processNotification(topic, id) {
+    topic = notification.topic;
+    id = notification.id;
     switch (topic) {
       case "payment":
         path = "/v1/payments/";
