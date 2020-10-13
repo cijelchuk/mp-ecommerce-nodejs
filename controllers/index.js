@@ -1,5 +1,6 @@
 const IPN = require("../models/notification");
 const paymentDetail = require("../models/paymentDetail");
+const merchantOrder = require("../models/merchantOrder");
 const axios = require("axios");
 const access_token = "APP_USR-6317427424180639-042414-47e969706991d3a442922b0702a0da44-469485398";
 const integrator_id = "dev_24c65fb163bf11ea96500242ac130004";
@@ -33,28 +34,12 @@ module.exports = {
   async getNotificationController(req, res, next) {
     parms = req.query;
     data = req.body;
-    // console.log("getNotification" + { parmetros: parms });
-    // console.log("getNotification" + { body: data });
     let notification = new IPN();
     notification.topic = parms.topic;
     notification.id = parms.id;
     notification.body = JSON.stringify(data);
     notification.parms = JSON.stringify(parms);
     await notification.save();
-    res.status(201).send("OK"); //creted
-  },
-  async postNotificationController(req, res, next) {
-    parms = req.query;
-    data = req.body;
-    // console.log("getNotification" + { parmetros: parms });
-    // console.log("getNotification" + { body: data });
-    let notification = new IPN();
-    notification.topic = parms.topic;
-    notification.id = parms.id;
-    notification.body = JSON.stringify(data);
-    notification.parms = JSON.stringify(parms);
-    await notification.save();
-    res.status(201).send("OK"); //created
     //proceso la notificacion
     topic = notification.topic;
     id = notification.id;
@@ -71,7 +56,7 @@ module.exports = {
     }
     let notificationURL = `https://api.mercadopago.com/${path}/${notification.id}`;
     console.log(notificationURL);
-    var paymentResponse = null;
+    var data = null;
     try {
       const response = await axios.get(notificationURL, {
         headers: {
@@ -79,26 +64,29 @@ module.exports = {
         },
       });
 
-      paymentResponse = JSON.stringify(response.data);
-      console.log(paymentResponse);
+      data = JSON.stringify(response.data);
+      console.log(data);
     } catch (error) {
       console.error("procnoterr:" + error);
     }
-    if (paymentResponse) {
+    if (data) {
       switch (topic) {
         case "payment":
-          payment = new paymentDetail(paymentResponse);
+          payment = new paymentDetail(JSON.parse(data));
           await payment.save();
           break;
         case "chargebacks":
           path = "v1/chargebacks";
           break;
         case "merchant_orders":
-          path = "merchant_orders";
+          order = new merchantOrder(JSON.parse(data));
+          await order.save();
           break;
       }
     }
+    res.status(201).send("OK"); //created
   },
+
   async payController(req, res, next) {
     const Baseurl = req.protocol + "://" + req.get("host");
     data = req.body;
@@ -172,3 +160,60 @@ module.exports = {
       });
   },
 };
+
+// async postNotificationController(req, res, next) {
+//   parms = req.query;
+//   data = req.body;
+//   // console.log("getNotification" + { parmetros: parms });
+//   // console.log("getNotification" + { body: data });
+//   let notification = new IPN();
+//   notification.topic = parms.topic;
+//   notification.id = parms.id;
+//   notification.body = JSON.stringify(data);
+//   notification.parms = JSON.stringify(parms);
+//   await notification.save();
+//   //proceso la notificacion
+//   topic = notification.topic;
+//   id = notification.id;
+//   switch (topic) {
+//     case "payment":
+//       path = "v1/payments";
+//       break;
+//     case "chargebacks":
+//       path = "v1/chargebacks";
+//       break;
+//     case "merchant_orders":
+//       path = "merchant_orders";
+//       break;
+//   }
+//   let notificationURL = `https://api.mercadopago.com/${path}/${notification.id}`;
+//   console.log(notificationURL);
+//   var paymentResponse = null;
+//   try {
+//     const response = await axios.get(notificationURL, {
+//       headers: {
+//         Authorization: `Bearer ${access_token}`,
+//       },
+//     });
+
+//     paymentResponse = JSON.stringify(response.data);
+//     console.log(paymentResponse);
+//   } catch (error) {
+//     console.error("procnoterr:" + error);
+//   }
+//   if (paymentResponse) {
+//     switch (topic) {
+//       case "payment":
+//         payment = new paymentDetail(paymentResponse);
+//         await payment.save();
+//         break;
+//       case "chargebacks":
+//         path = "v1/chargebacks";
+//         break;
+//       case "merchant_orders":
+//         path = "merchant_orders";
+//         break;
+//     }
+//   }
+//   res.status(201).send("OK"); //created
+// },
