@@ -86,6 +86,61 @@ module.exports = {
     }
     res.status(201).send("OK"); //created
   },
+  async postNotificationController(req, res, next) {
+    parms = req.query;
+    data = req.body;
+    let notification = new IPN();
+    notification.topic = parms.topic;
+    notification.id = parms.id;
+    notification.body = JSON.stringify(data);
+    notification.parms = JSON.stringify(parms);
+    await notification.save();
+    //proceso la notificacion
+    topic = notification.topic;
+    id = notification.id;
+    switch (topic) {
+      case "payment":
+        path = "v1/payments";
+        break;
+      case "chargebacks":
+        path = "v1/chargebacks";
+        break;
+      case "merchant_orders":
+        path = "merchant_orders";
+        break;
+    }
+    let notificationURL = `https://api.mercadopago.com/${path}/${notification.id}`;
+    console.log(notificationURL);
+    var data = null;
+    try {
+      const response = await axios.get(notificationURL, {
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+        },
+      });
+
+      data = JSON.stringify(response.data);
+      console.log(data);
+    } catch (error) {
+      console.error("procnoterr:" + error);
+    }
+    if (data) {
+      switch (topic) {
+        case "payment":
+          payment = new paymentDetail(JSON.parse(data));
+          await payment.save();
+          break;
+        case "chargebacks":
+          path = "v1/chargebacks";
+          break;
+        case "merchant_orders":
+          order = new merchantOrder(JSON.parse(data));
+          await order.save();
+          break;
+      }
+    }
+    res.status(201).send("OK"); //created
+  },
 
   async payController(req, res, next) {
     const Baseurl = req.protocol + "://" + req.get("host");
