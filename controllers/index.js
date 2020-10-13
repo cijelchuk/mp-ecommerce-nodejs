@@ -90,8 +90,14 @@ module.exports = {
     parms = req.query;
     data = req.body;
     let notification = new IPN();
-    notification.topic = parms.topic;
-    notification.id = parms.id;
+
+    if (parms.topic === "merchant_order") {
+      notification.topic = parms.topic;
+      notification.id = parms.id;
+    } else if (parms.type === "payment") {
+      notification.topic = parms.type;
+      notification.id = parms.data.id;
+    }
     notification.body = JSON.stringify(data);
     notification.parms = JSON.stringify(parms);
     await notification.save();
